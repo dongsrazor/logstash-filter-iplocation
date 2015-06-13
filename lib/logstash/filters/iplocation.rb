@@ -34,14 +34,14 @@ class FunshionIPDB
     @country_ipranges = []
     @city_ipranges = []
     t1 = Time.now()
-    f = File.open("funshion.country.dat", "r")
+    f = File.open(countrydb, "r")
     f.each do |line|
       startip, endip, country, province, isp, reliability = line.force_encoding('utf-8').split(',', 6)
       ipr = IPRange.new(startip, endip, country, province, '', isp, reliability)
       @country_ipranges.push(ipr)
     end
     t2 = Time.now()
-    f = File.open("funshion.city.dat", "r")
+    f = File.open(citydb, "r")
     f.each do |line|
       startip, endip, province, city, isp, reliability = line.force_encoding('utf-8').split(',', 6)
       ipr = IPRange.new(startip, endip, '中国', province, city, isp, reliability)
@@ -118,6 +118,7 @@ class LogStash::Filters::FSIP < LogStash::Filters::Base
   
   # Replace the message with this value.
   config :source, :validate => :string, :default => "client_ip", :required => true
+  config :uri, :validate => :string, :default => "http_request", :required => true
   
 
   public
@@ -132,11 +133,17 @@ class LogStash::Filters::FSIP < LogStash::Filters::Base
     if @source
       # Replace the event message with our message as configured in the
       # config file.
-      startip, endip, country, province, city, isp, r = fsdb.query(@source)
+      startip, endip, country, province, city, isp, r = fsdb.query(event[@source])
       event["client_country"] = country
       event["client_province"] = province 
       event["client_city"] = city
       event["client_isp"] = isp 
+    end
+
+    if @uri
+      u = URI::parse(event[@uri])
+      event["path"] = u.path
+      event["query"] = u.query
     end
     # filter_matched should go in the last line of our successful code
     filter_matched(event)
