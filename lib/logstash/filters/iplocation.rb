@@ -33,28 +33,25 @@ class FunshionIPDB
   def initialize(countrydb, citydb)
     @country_ipranges = []
     @city_ipranges = []
-    t1 = Time.now()
+
     f = File.open(countrydb, "r")
     f.each do |line|
       startip, endip, country, province, isp, reliability = line.force_encoding('utf-8').split(',', 6)
       ipr = IPRange.new(startip, endip, country, province, '', isp, reliability)
       @country_ipranges.push(ipr)
     end
-    t2 = Time.now()
+
     f = File.open(citydb, "r")
     f.each do |line|
       startip, endip, province, city, isp, reliability = line.force_encoding('utf-8').split(',', 6)
       ipr = IPRange.new(startip, endip, '中国', province, city, isp, reliability)
       @city_ipranges.push(ipr)
     end
-    t3 = Time.now()
-    puts t2 - t1
-    puts t3 - t2
+
   end
 
   def _query(ipranges, ip)
-    """查询风行库，得到ip信息，如果库中不存在，返回0
-    r = 1时返回ip range"""
+    #查询风行库，得到ip信息
     #二分法查询ip
     lid = 0
     hid = ipranges.length - 1
@@ -119,7 +116,7 @@ class LogStash::Filters::FSIP < LogStash::Filters::Base
   # Replace the message with this value.
   config :source, :validate => :string, :default => "client_ip", :required => true
   config :uri, :validate => :string, :default => "http_request", :required => true
-  
+  config :request_headers, :validate => :string, :default => "captured_request_headers", :required => true
 
   public
   def register
@@ -145,6 +142,13 @@ class LogStash::Filters::FSIP < LogStash::Filters::Base
       event["path"] = u.path
       event["query"] = u.query
     end
+
+    if @request_headers
+      host, referer = event[@request_headers].split("|")
+      event["host"] = host
+      event["referer"] referer
+    end
+    
     # filter_matched should go in the last line of our successful code
     filter_matched(event)
   end # def filter
