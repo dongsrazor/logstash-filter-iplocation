@@ -146,9 +146,9 @@ class LogStash::Filters::FSIP < LogStash::Filters::Base
     if @request_headers
       host, referer = event[@request_headers].split("|")
       event["host"] = host
-      event["referer"] referer
+      event["referer"] = referer
     end
-    
+
     # filter_matched should go in the last line of our successful code
     filter_matched(event)
   end # def filter
