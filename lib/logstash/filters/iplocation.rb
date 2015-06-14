@@ -11,8 +11,6 @@ class IPRange
   attr_accessor :city
   attr_accessor :isp
   attr_accessor :reliability
-  #attr_accessor :startint
-  #attr_accessor :endint
   
   def initialize(startip, endip, country, province, city, isp, reliability)
     @startip = startip
@@ -22,9 +20,6 @@ class IPRange
     @city = city
     @isp = isp
     @reliability = reliability
-
-    #@startint = IPAddr.new(@startip).to_i
-    #@endint = IPAddr.new(@endip).to_i
   end
 
 end
@@ -96,10 +91,6 @@ class FunshionIPDB
 end
 
 
-# This example filter will replace the contents of the default 
-# message field with whatever you specify in the configuration.
-#
-# It is only intended to be used as an example.
 class LogStash::Filters::FSIP < LogStash::Filters::Base
 
   # Setting the config_name here is required. This is how you
@@ -115,8 +106,6 @@ class LogStash::Filters::FSIP < LogStash::Filters::Base
   
   # Replace the message with this value.
   config :source, :validate => :string, :default => "client_ip", :required => true
-  config :uri, :validate => :string, :default => "http_request", :required => true
-  config :request_headers, :validate => :string, :default => "captured_request_headers", :required => true
 
   public
   def register
@@ -135,18 +124,6 @@ class LogStash::Filters::FSIP < LogStash::Filters::Base
       event["client_province"] = province 
       event["client_city"] = city
       event["client_isp"] = isp 
-    end
-
-    if @uri
-      u = URI::parse(event[@uri])
-      event["path"] = u.path
-      event["query"] = u.query
-    end
-
-    if @request_headers
-      host, referer = event[@request_headers].split("|")
-      event["host"] = host
-      event["referer"] = referer
     end
 
     # filter_matched should go in the last line of our successful code
