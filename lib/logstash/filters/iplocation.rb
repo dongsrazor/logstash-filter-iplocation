@@ -31,15 +31,20 @@ class FunshionIPDB
 
     f = File.open(countrydb, "r")
     f.each do |line|
+      # 0.0.0.0,0.255.255.255,US,,国外,4
+      # 为了方便统计令 province = country
       startip, endip, country, province, isp, reliability = line.force_encoding('utf-8').split(',', 6)
-      ipr = IPRange.new(startip, endip, country, province, '', isp, reliability)
+      province = country
+      city = ''
+      ipr = IPRange.new(startip, endip, country, province, city, isp, reliability)
       @country_ipranges.push(ipr)
     end
 
     f = File.open(citydb, "r")
     f.each do |line|
       startip, endip, province, city, isp, reliability = line.force_encoding('utf-8').split(',', 6)
-      ipr = IPRange.new(startip, endip, '中国', province, city, isp, reliability)
+      country = '中国'
+      ipr = IPRange.new(startip, endip, country, province, city, isp, reliability)
       @city_ipranges.push(ipr)
     end
 
@@ -111,7 +116,6 @@ class LogStash::Filters::FSIP < LogStash::Filters::Base
   def register
     # Add instance variables 
     @fsdb = FunshionIPDB.new("/opt/logstash/vendor/iplocation/funshion.country.dat", "/opt/logstash/vendor/iplocation/funshion.city.dat")
-    @logger.error("")
   end # def register
 
   public
@@ -121,7 +125,6 @@ class LogStash::Filters::FSIP < LogStash::Filters::Base
       # Replace the event message with our message as configured in the
       # config file.
       startip, endip, country, province, city, isp, r = @fsdb.query(event[@source])
-      @logger.error("query ip")
       event["client_country"] = country
       event["client_province"] = province 
       event["client_city"] = city
