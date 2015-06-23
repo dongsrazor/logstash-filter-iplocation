@@ -111,6 +111,7 @@ class LogStash::Filters::FSIP < LogStash::Filters::Base
   def register
     # Add instance variables 
     @fsdb = FunshionIPDB.new("/opt/logstash/vendor/iplocation/funshion.country.dat", "/opt/logstash/vendor/iplocation/funshion.city.dat")
+    @logger.error("")
   end # def register
 
   public
@@ -120,6 +121,7 @@ class LogStash::Filters::FSIP < LogStash::Filters::Base
       # Replace the event message with our message as configured in the
       # config file.
       startip, endip, country, province, city, isp, r = @fsdb.query(event[@source])
+      @logger.error("query ip")
       event["client_country"] = country
       event["client_province"] = province 
       event["client_city"] = city
