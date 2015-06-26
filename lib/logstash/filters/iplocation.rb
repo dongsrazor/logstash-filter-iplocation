@@ -55,7 +55,13 @@ class FunshionIPDB
     #二分法查询ip
     lid = 0
     hid = ipranges.length - 1
-    fip = IPAddr.new(ip).to_i
+    
+    begin
+      fip = IPAddr.new(addr=ip, family=Socket::AF_INET).to_i
+      puts ip
+    rescue 
+      fip = IPAddr.new('0.0.0.0').to_i
+    end
 
     while lid <= hid do
       mid = (lid + hid)/2
