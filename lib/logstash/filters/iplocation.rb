@@ -58,8 +58,10 @@ class FunshionIPDB
     
     begin
       fip = IPAddr.new(addr=ip, family=Socket::AF_INET).to_i
+    rescue
+      puts 'err'
       puts ip
-    rescue 
+      puts 'or'
       fip = IPAddr.new('0.0.0.0').to_i
     end
 
