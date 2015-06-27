@@ -3,26 +3,6 @@ require "logstash/filters/base"
 require "logstash/namespace"
 require 'ipaddr'
 
-class IPRange
-  attr_accessor :startip
-  attr_accessor :endip
-  attr_accessor :country
-  attr_accessor :province
-  attr_accessor :city
-  attr_accessor :isp
-  attr_accessor :reliability
-  
-  def initialize(startip, endip, country, province, city, isp, reliability)
-    @startip = startip
-    @endip = endip
-    @country = country
-    @province = province
-    @city = city
-    @isp = isp
-    @reliability = reliability
-  end
-
-end
 
 class FunshionIPDB
   def initialize(countrydb, citydb)
@@ -36,7 +16,15 @@ class FunshionIPDB
       startip, endip, country, province, isp, reliability = line.force_encoding('utf-8').split(',', 6)
       province = country
       city = ''
-      ipr = IPRange.new(startip, endip, country, province, city, isp, reliability)
+      ipr = {
+        'startip' => startip,
+        'endip' => endip,
+        'country' => country,
+        'province' => province,
+        'city' => city,
+        'isp' => isp,
+        'reliability' => reliability
+      }
       @country_ipranges.push(ipr)
     end
 
@@ -44,7 +32,15 @@ class FunshionIPDB
     f.each do |line|
       startip, endip, province, city, isp, reliability = line.force_encoding('utf-8').split(',', 6)
       country = '中国'
-      ipr = IPRange.new(startip, endip, country, province, city, isp, reliability)
+      ipr = {
+        'startip' => startip,
+        'endip' => endip,
+        'country' => country,
+        'province' => province,
+        'city' => city,
+        'isp' => isp,
+        'reliability' => reliability
+      }
       @city_ipranges.push(ipr)
     end
 
@@ -59,17 +55,17 @@ class FunshionIPDB
     begin
       fip = IPAddr.new(addr=ip, family=Socket::AF_INET).to_i
     rescue
-      fip = IPAddr.new('0.0.0.0', family=Socket::AF_INET).to_i
+      fip = IPAddr.new(addr='0.0.0.0', family=Socket::AF_INET).to_i
     end
 
     while lid <= hid do
       mid = (lid + hid)/2
-      startint = IPAddr.new(ipranges[mid].startip).to_i
-      endint = IPAddr.new(ipranges[mid].endip).to_i
+      startint = IPAddr.new(addr=ipranges[mid]['startip'], family=Socket::AF_INET).to_i
+      endint = IPAddr.new(addr=ipranges[mid]['endip'], family=Socket::AF_INET).to_i
       if fip >= startint and fip <= endint
-        return [ipranges[mid].startip, ipranges[mid].endip,
-               ipranges[mid].country, ipranges[mid].province, ipranges[mid].city, ipranges[mid].isp,
-               ipranges[mid].reliability]
+        return [ipranges[mid]['startip', ipranges[mid]['endip'],
+               ipranges[mid]['country'], ipranges[mid]['province'], ipranges[mid]['city'], ipranges[mid]['isp'],
+               ipranges[mid]['reliability']]
       end
       if fip < startint
         hid = mid - 1
@@ -101,7 +97,7 @@ class FunshionIPDB
 end
 
 
-class LogStash::Filters::FSIP < LogStash::Filters::Base
+class LogStash::Filters::IPLocation < LogStash::Filters::Base
 
   # Setting the config_name here is required. This is how you
   # configure this filter from your Logstash config.
@@ -114,7 +110,6 @@ class LogStash::Filters::FSIP < LogStash::Filters::Base
   #
   config_name "iplocation"
   
-  # Replace the message with this value.
   config :source, :validate => :string, :default => "client_ip", :required => true
 
   public
@@ -127,8 +122,6 @@ class LogStash::Filters::FSIP < LogStash::Filters::Base
   def filter(event)
 
     if @source
-      # Replace the event message with our message as configured in the
-      # config file.
       startip, endip, country, province, city, isp, r = @fsdb.query(event[@source])
       event["client_country"] = country
       event["client_province"] = province 
@@ -139,4 +132,4 @@ class LogStash::Filters::FSIP < LogStash::Filters::Base
     # filter_matched should go in the last line of our successful code
     filter_matched(event)
   end # def filter
-end # class LogStash::Filters::Example
+end # class LogStash::Filters::IPLocation
