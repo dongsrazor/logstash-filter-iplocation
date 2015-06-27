@@ -63,7 +63,7 @@ class FunshionIPDB
       startint = IPAddr.new(addr=ipranges[mid]['startip'], family=Socket::AF_INET).to_i
       endint = IPAddr.new(addr=ipranges[mid]['endip'], family=Socket::AF_INET).to_i
       if fip >= startint and fip <= endint
-        return [ipranges[mid]['startip', ipranges[mid]['endip'],
+        return [ipranges[mid]['startip'], ipranges[mid]['endip'],
                ipranges[mid]['country'], ipranges[mid]['province'], ipranges[mid]['city'], ipranges[mid]['isp'],
                ipranges[mid]['reliability']]
       end
