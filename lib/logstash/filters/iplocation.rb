@@ -13,12 +13,12 @@ class FunshionIPDB
     f.each do |line|
       # 0.0.0.0,0.255.255.255,US,,国外,4
       # 为了方便统计令 province = country
-      startip, endip, country, province, isp, reliability = line.force_encoding('utf-8').split(',', 6)
+      startint, endint, country, province, isp, reliability = line.force_encoding('utf-8').split(',', 6)
       province = country
       city = ''
       ipr = {
-        'startip' => startip,
-        'endip' => endip,
+        'startint' => startint,
+        'endint' => endint,
         'country' => country,
         'province' => province,
         'city' => city,
@@ -30,11 +30,11 @@ class FunshionIPDB
 
     f = File.open(citydb, "r")
     f.each do |line|
-      startip, endip, province, city, isp, reliability = line.force_encoding('utf-8').split(',', 6)
+      startint, endint, province, city, isp, reliability = line.force_encoding('utf-8').split(',', 6)
       country = '中国'
       ipr = {
-        'startip' => startip,
-        'endip' => endip,
+        'startint' => startint,
+        'endint' => endint,
         'country' => country,
         'province' => province,
         'city' => city,
@@ -60,10 +60,8 @@ class FunshionIPDB
 
     while lid <= hid do
       mid = (lid + hid)/2
-      startint = IPAddr.new(addr=ipranges[mid]['startip'], family=Socket::AF_INET).to_i
-      endint = IPAddr.new(addr=ipranges[mid]['endip'], family=Socket::AF_INET).to_i
       if fip >= startint and fip <= endint
-        return [ipranges[mid]['startip'], ipranges[mid]['endip'],
+        return [ipranges[mid]['startint'], ipranges[mid]['endint'],
                ipranges[mid]['country'], ipranges[mid]['province'], ipranges[mid]['city'], ipranges[mid]['isp'],
                ipranges[mid]['reliability']]
       end
@@ -122,7 +120,7 @@ class LogStash::Filters::IPLocation < LogStash::Filters::Base
   def filter(event)
 
     if @source
-      startip, endip, country, province, city, isp, r = @fsdb.query(event[@source])
+      startint, endint, country, province, city, isp, r = @fsdb.query(event[@source])
       event["client_country"] = country
       event["client_province"] = province 
       event["client_city"] = city
