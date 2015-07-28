@@ -17,8 +17,8 @@ class FunshionIPDB
       province = country
       city = ''
       ipr = {
-        'startint' => startint,
-        'endint' => endint,
+        'startint' => startint.to_i,
+        'endint' => endint.to_i,
         'country' => country,
         'province' => province,
         'city' => city,
@@ -33,8 +33,8 @@ class FunshionIPDB
       startint, endint, province, city, isp, reliability = line.force_encoding('utf-8').split(',', 6)
       country = '中国'
       ipr = {
-        'startint' => startint,
-        'endint' => endint,
+        'startint' => startint.to_i,
+        'endint' => endint.to_i,
         'country' => country,
         'province' => province,
         'city' => city,
@@ -60,6 +60,8 @@ class FunshionIPDB
 
     while lid <= hid do
       mid = (lid + hid)/2
+      startint = ipranges[mid]['startint']
+      endint = ipranges[mid]['endint']
       if fip >= startint and fip <= endint
         return [ipranges[mid]['startint'], ipranges[mid]['endint'],
                ipranges[mid]['country'], ipranges[mid]['province'], ipranges[mid]['city'], ipranges[mid]['isp'],
