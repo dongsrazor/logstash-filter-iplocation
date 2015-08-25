@@ -13,7 +13,7 @@ class FunshionIPDB
     f.each do |line|
       # 0.0.0.0,0.255.255.255,US,,国外,4
       # 为了方便统计令 province = country
-      startint, endint, country, province, isp, reliability = line.force_encoding('utf-8').split(',', 6)
+      startip, entip, startint, endint, country, province, isp, reliability = line.force_encoding('utf-8').split(',', 8)
       province = country
       city = ''
       ipr = {
@@ -30,7 +30,7 @@ class FunshionIPDB
 
     f = File.open(citydb, "r")
     f.each do |line|
-      startint, endint, province, city, isp, reliability = line.force_encoding('utf-8').split(',', 6)
+      startip, endip, startint, endint, province, city, isp, reliability = line.force_encoding('utf-8').split(',', 8)
       country = '中国'
       ipr = {
         'startint' => startint.to_i,
