@@ -115,7 +115,7 @@ class LogStash::Filters::IPLocation < LogStash::Filters::Base
   public
   def register
     # Add instance variables 
-    @fsdb = FunshionIPDB.new("/opt/logstash/vendor/iplocation/funshion.country.dat", "/opt/logstash/vendor/iplocation/funshion.city.dat")
+    @fsdb = FunshionIPDB.new("/usr/share/logstash/vendor/iplocation/funshion.country.dat", "/usr/share/logstash/vendor/iplocation/funshion.city.dat")
   end # def register
 
   public
