@@ -122,11 +122,11 @@ class LogStash::Filters::IPLocation < LogStash::Filters::Base
   def filter(event)
 
     if @source
-      startint, endint, country, province, city, isp, r = @fsdb.query(event[@source])
-      event["client_country"] = country
-      event["client_province"] = province 
-      event["client_city"] = city
-      event["client_isp"] = isp 
+      startint, endint, country, province, city, isp, r = @fsdb.query(event.get(@source))
+      event.set("client_country") = country
+      event.set("client_province") = province 
+      event.set("client_city") = city
+      event.set("client_isp") = isp 
     end
 
     # filter_matched should go in the last line of our successful code
